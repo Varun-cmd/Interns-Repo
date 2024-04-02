@@ -1,0 +1,163 @@
+package com.example.demo.Controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.Models.Address;
+import com.example.demo.Models.User;
+import com.example.demo.Repository.AddressRepository;
+import com.example.demo.Repository.UserRepository;
+
+import jakarta.persistence.OneToOne;
+import jakarta.transaction.Transactional;
+
+@RestController
+@RequestMapping("api/user")
+public class UserController {
+
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+
+	private AddressRepository addressRepository;
+		
+	@GetMapping("/getAllUsers")
+	public String getAllUsers() {
+		
+		Sort sortByName = Sort.by("userName");
+		
+		List<User> users = (List<User>) userRepository.findAll(sortByName);
+		if(users.size() == 0) {
+			return "No user data available";
+		}else {
+			String str = "";
+			for (User user : users) {
+				str+=user.getUserName()+" ";
+			}
+			return str;
+		}
+	}
+	
+	@GetMapping("/userCount")
+	public long getUsersCount() {
+		return userRepository.count();
+	}
+	
+	
+	
+	@PostMapping("/addUser")
+//	@Transactional(dontRollbackOn = { NullPointerException.class })
+	@Transactional(rollbackOn =   { Exception.class })
+	public String addUser(@RequestBody  User user) throws Exception {
+		
+
+	//		address.setAddress(address.getAddress());
+	//		address.setPincode(address.getPincode());
+		
+		
+		userRepository.save(user);
+		
+		return "User Successfully Created";		
+	}
+	
+//	@Transactional(dontRollbackOn = { Exception.class })
+//	public String Dummy() throws Exception {
+//		throw new Exception();
+//	}
+
+	
+//	@PutMapping("/updateUser/{id}/{name}")
+//	public String updateUser(@PathVariable("id") int userId, @PathVariable("name") String userName) {
+//		
+//		Optional<User> user = userRepository.findById(userId);
+//		User userDetails = user.get();
+//		
+//		userDetails.setUserName(userName);
+//		userRepository.save(userDetails);
+//		return "User Details Successfully Updated";
+//	}
+	
+	
+	@PutMapping("/updateUser/{id}")
+	public String updateUser(@PathVariable("id") int userId, @RequestBody User user) {
+		
+		Optional<User> currUser = userRepository.findById(userId);
+		
+		
+		System.out.println(user.getUserName());
+		System.out.println(user.getAddress().getAddress());
+		System.out.println(user.getAddress().getPincode());
+		
+		if(currUser.isPresent()) {
+			
+			User existingUser = currUser.get();
+//			System.out.println(existingUser.getCreatedAt());
+			
+			if(user.getUserName()!=null) {
+				System.out.println("Enter into namechange");
+				System.out.println("Before "+existingUser.getUserName());
+				existingUser.setUserName(user.getUserName());
+				System.out.println(existingUser.getUserName());
+			}
+			
+			if(user.getAddress()!=null) {
+				if(user.getAddress().getAddress()!=null) {
+					existingUser.getAddress().setAddress(user.getAddress().getAddress());
+				}
+				
+				if(user.getAddress().getPincode()!=0) {
+					existingUser.getAddress().setPincode(user.getAddress().getPincode());
+				}
+			}
+			
+			userRepository.save(existingUser);
+			return "Data Successfully Updated";
+			
+		}else {
+			return "Couldn't Find the User :(";
+		}
+	}
+	
+	
+	
+	@DeleteMapping("/deleteUser/{id}")
+	public String deleteUser(@PathVariable("id") int userId) {
+		userRepository.deleteById(userId);
+		return "User Deleted Successfully";		
+	}
+	
+	@DeleteMapping("/deleteAllUsers")
+	public String deleteAllUsers() {
+		userRepository.deleteAll();
+		return "Users Deleted";
+	}
+	
+	@DeleteMapping("/deleteByUserType")
+	public String deleteByUserType(@RequestBody User user) {
+		userRepository.delete(user);
+		return "User Deleted Successfully";
+	}
+	
+	
+
+	
+	
+	
+	@ExceptionHandler(Exception.class)
+	public String handleException(Exception e) {
+		return e.toString();
+	}	
+}
