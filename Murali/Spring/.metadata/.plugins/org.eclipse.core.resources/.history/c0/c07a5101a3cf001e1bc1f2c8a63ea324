@@ -1,0 +1,17 @@
+spring.datasource.url=jdbc:mysql://localhost:3306/gigproject
+spring.datasource.username=root
+spring.datasource.password=Bobmurali2002@24
+
+
+spring.security.user.usename=murali
+spring.security.user.password=123
+#spring.jpa.hibernate.ddl-auto=update
+#spring.jpa.show-sql=true
+#spring.jpa.properties.hibernate.format_sql=true
+#spring.jpa.properties.hibernate.generate_statistics=true
+
+#Enable this section based on your preferences
+#logging.level.org.hibernate.type=trace
+#logging.level.org.hibernate.stat=debug
+
+#logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n

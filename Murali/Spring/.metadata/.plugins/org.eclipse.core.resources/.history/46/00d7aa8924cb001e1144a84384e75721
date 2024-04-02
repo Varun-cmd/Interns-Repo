@@ -1,0 +1,20 @@
+package com.example.demo.Models;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
+@Embeddable
+public class UserImage {
+	
+	@Column(name = "image_url")
+	private String imageURL;
+
+	public String getImageURL() {
+		return imageURL;
+	}
+
+	public void setImageURL(String imageURL) {
+		this.imageURL = imageURL;
+	}
+	
+}
